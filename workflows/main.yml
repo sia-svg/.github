@@ -31,17 +31,17 @@ jobs:
           curl -L https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz | tar xz
           sudo mv kube-linter /usr/local/bin/
 
-      # Проверка Helm-чарта
+      # Проверка Helm-чарт
       - name: Helm lint
-        run: helm lint apps/podinfo/
+        run: helm lint flux-demo/apps/podinfo/
 
       # Проверка итоговых YAML через kubeconform
       - name: Helm template + kubeconform
-        run: helm template apps/podinfo/ | kubeconform -strict -summary
+        run: helm template flux-demo/apps/podinfo/ | kubeconform -strict -summary
 
       # Проверка best practices через kube-linter
       - name: kube-linter
-        run: kube-linter lint apps/podinfo/
+        run: kube-linter lint flux-demo/apps/podinfo/
 
       # (опционально) Проверка Kustomize overlays
       - name: Install Kustomize
