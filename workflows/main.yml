@@ -33,15 +33,15 @@ jobs:
 
       # Проверка Helm-чарта
       - name: Helm lint
-        run: helm lint .apps/podinfo/
+        run: helm lint apps/podinfo/
 
       # Проверка итоговых YAML через kubeconform
       - name: Helm template + kubeconform
-        run: helm template flux-demo/apps/podinfo/ | kubeconform -strict -summary
+        run: helm template apps/podinfo/ | kubeconform -strict -summary
 
       # Проверка best practices через kube-linter
       - name: kube-linter
-        run: kube-linter lint flux-demo/apps/podinfo/
+        run: kube-linter lint apps/podinfo/
 
       # (опционально) Проверка Kustomize overlays
       - name: Install Kustomize
