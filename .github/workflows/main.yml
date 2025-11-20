@@ -1,0 +1,56 @@
+name: Validate Kubernetes Manifests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:   # ← позволяет запускать руками
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Установка Helm
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      # Установка kubeconform
+      - name: Install kubeconform
+        run: |
+          curl -L https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
+          sudo mv kubeconform /usr/local/bin/
+
+      # Установка kube-linter
+      - name: Install kube-linter
+        run: |
+          curl -L https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz | tar xz
+          sudo mv kube-linter /usr/local/bin/
+
+      # Проверка Helm-чарта
+      - name: Helm lint
+        run: helm lint flux-demo/apps/podinfo/
+
+      # Проверка итоговых YAML через kubeconform
+      - name: Helm template + kubeconform
+        run: helm template flux-demo/apps/podinfo/ | kubeconform -strict -summary
+
+      # Проверка best practices через kube-linter
+      - name: kube-linter
+        run: kube-linter lint flux-demo/apps/podinfo/
+
+      # (опционально) Проверка Kustomize overlays
+      - name: Install Kustomize
+        run: |
+          curl -L https://github.com/kubernetes-sigs/kustomize/releases/latest/download/kustomize_linux_amd64.tar.gz | tar xz
+          sudo mv kustomize /usr/local/bin/
+
+      - name: Kustomize build + kubeconform
+        run: kustomize build flux-demo/apps/podinfo/overlays/dev | kubeconform -strict -summary || true
+
+      - name: Kustomize build + kube-linter
+        run: kustomize build flux-demo/apps/podinfo/overlays/dev | kube-linter lint - || true
