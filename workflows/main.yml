@@ -33,7 +33,7 @@ jobs:
 
       # Проверка Helm-чарта
       - name: Helm lint
-        run: helm lint apps/podinfo/
+        run: helm lint .apps/podinfo/
 
       # Проверка итоговых YAML через kubeconform
       - name: Helm template + kubeconform
