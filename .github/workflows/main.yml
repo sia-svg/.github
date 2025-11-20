@@ -32,6 +32,9 @@ jobs:
           sudo mv kube-linter /usr/local/bin/
 
       # Проверка Helm-чарта
+      - name: Debug repo structure
+        run: ls -R
+
       - name: Helm lint
         run: helm lint apps/podinfo/
 
